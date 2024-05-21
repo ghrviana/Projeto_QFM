@@ -128,132 +128,136 @@ Esta iniciativa representa um passo significativo na educação moderna em Quím
 
 with tab2:
     uploaded_file = st.file_uploader("Escolha um arquivo do Excel") 
-    if uploaded_file:   
-        dataframe = pd.read_excel(uploaded_file)
-        # dataframe = pd.read_csv(uploaded_file)
-        st.dataframe(dataframe)
+    # if uploaded_file:   
+    #     dataframe = pd.read_excel(uploaded_file)
+    #     # dataframe = pd.read_csv(uploaded_file)
+    #     st.dataframe(dataframe)
+    
+    dataframe = pd.read_excel('data/medicamentos.xlsx')
+    st.dataframe(dataframe)
+    
     
 
 with tab3:
     col1, col2= st.columns(2)
-    if uploaded_file:
-        with col1:        
-            colunas_numericas = list(dataframe.select_dtypes(include='number').columns)
-            eixos_selecionados = st.multiselect(
-            'Selecione os eixos **X** e **Y** para serem plotados no gráfico de dispersão',
-            colunas_numericas,
-            max_selections = 2,            
-            placeholder='Selecione os eixos X e Y...')
-        with col2:
-            cor_selecionada = st.multiselect(
-            'Selecione 1 propriedade para adicionar cor às propriedades a serem plotadas no gráfico de dispersão',
-            list(dataframe.columns),
-            max_selections = 1,
-            placeholder='Selecione uma propriedade...')
+    # if uploaded_file:
+    with col1:        
+        colunas_numericas = list(dataframe.select_dtypes(include='number').columns)
+        eixos_selecionados = st.multiselect(
+        'Selecione os eixos **X** e **Y** para serem plotados no gráfico de dispersão',
+        colunas_numericas,
+        max_selections = 2,            
+        placeholder='Selecione os eixos X e Y...')
+    with col2:
+        cor_selecionada = st.multiselect(
+        'Selecione 1 propriedade para adicionar cor às propriedades a serem plotadas no gráfico de dispersão',
+        list(dataframe.columns),
+        max_selections = 1,
+        placeholder='Selecione uma propriedade...')
 
 
-        if eixos_selecionados:            
-            if len(eixos_selecionados)==2:
-                fig, ax = plt.subplots( figsize=(10,7))
+    if eixos_selecionados:            
+        if len(eixos_selecionados)==2:
+            fig, ax = plt.subplots( figsize=(10,7))
 
-                x = eixos_selecionados[0]
-                y = eixos_selecionados[1]
-                if len(cor_selecionada) > 0:
-                    fig = px.scatter(dataframe, x=x, y=y, height=600, color=cor_selecionada[0], hover_data=['farmaco'] )
-                else:
-                    fig = px.scatter(dataframe, x=x, y=y, height=600, hover_data=['farmaco'])
-                fig.update_layout(plot_bgcolor='white')
-                fig.update_yaxes(title_font_color="black")
-                fig.update_xaxes(title_font_color="black")
-                
-                st.plotly_chart(fig, use_container_width=True)
-                
-                st.divider()    
+            x = eixos_selecionados[0]
+            y = eixos_selecionados[1]
+            if len(cor_selecionada) > 0:
+                fig = px.scatter(dataframe, x=x, y=y, height=600, color=cor_selecionada[0], hover_data=['farmaco'] )
+            else:
+                fig = px.scatter(dataframe, x=x, y=y, height=600, hover_data=['farmaco'])
+            fig.update_layout(plot_bgcolor='white')
+            fig.update_yaxes(title_font_color="black")
+            fig.update_xaxes(title_font_color="black")
+            
+            st.plotly_chart(fig, use_container_width=True)
+            
+            st.divider()    
             
 with tab4:
-    if uploaded_file:
-        farmaco_selecionado = st.selectbox(
-                                            'Selecione um medicamento:',                                            
-                                            options=dataframe['farmaco'].sort_values(ascending=True)
-                                        )
-        smiles_selecionado = dataframe[dataframe['farmaco'] == farmaco_selecionado]['canonical_smiles'].iloc[0]
-        classe_medicamento = dataframe[dataframe['farmaco'] == farmaco_selecionado]['classe_farmacologica'].iloc[0]
-        
-        estrutura_2d = chemical_struture_2d(smiles_selecionado)
-        formula_molecular = smiles_to_molecular_formula(smiles_selecionado)
+    # if uploaded_file:
+    farmaco_selecionado = st.selectbox(
+                                        'Selecione um medicamento:',                                            
+                                        options=dataframe['farmaco'].sort_values(ascending=True)
+                                    )
+    smiles_selecionado = dataframe[dataframe['farmaco'] == farmaco_selecionado]['canonical_smiles'].iloc[0]
+    classe_medicamento = dataframe[dataframe['farmaco'] == farmaco_selecionado]['classe_farmacologica'].iloc[0]
+    
+    estrutura_2d = chemical_struture_2d(smiles_selecionado)
+    formula_molecular = smiles_to_molecular_formula(smiles_selecionado)
 
-        min_values = [0, 100, 0, 0, 0]
-        max_values = [5, 500, 1, 5, 10]
-        ro5_props = calculate_lipinski_properties(fr"{smiles_selecionado}")
-        polar_plot = create_radar_plot_with_threshold(ro5_props, min_values, max_values, farmaco_selecionado, "#0B1B82")
-        
-        col1, col2 = st.columns(2)
-        with col1:
-            st.pyplot(polar_plot)
-        with col2:                       
-            st.image(estrutura_2d)                        
-            df_prop = pd.DataFrame(ro5_props, index=[0])
-            st.write(f'**Classe**: {classe_medicamento.capitalize()}')
-            st.write(f'**Fórmula Molecular**: {formula_molecular}')
-            st.write(df_prop)
+    min_values = [0, 100, 0, 0, 0]
+    max_values = [5, 500, 1, 5, 10]
+    ro5_props = calculate_lipinski_properties(fr"{smiles_selecionado}")
+    polar_plot = create_radar_plot_with_threshold(ro5_props, min_values, max_values, farmaco_selecionado, "#0B1B82")
+    
+    col1, col2 = st.columns(2)
+    with col1:
+        st.pyplot(polar_plot)
+    with col2:                       
+        st.image(estrutura_2d)                        
+        df_prop = pd.DataFrame(ro5_props, index=[0])
+        st.write(f'**Classe**: {classe_medicamento.capitalize()}')
+        st.write(f'**Fórmula Molecular**: {formula_molecular}')
+        st.write(df_prop)
             
 
 with tab5:    
-    if uploaded_file:
-        st.subheader('**Resumo Estatístico das Propriedades**')
-        via_admin = st.radio( 'Selecione uma via de administração:',['Todas','Oral', 'Parenteral', 'Tópica'], horizontal = True)
-        if via_admin == 'Todas':            
-            df_estatistico = dataframe.describe([.25,.5,.75,.9])
-        elif via_admin == 'Oral':
-            df_estatistico = dataframe[dataframe['via_administracao'] == 'oral'].describe([.25,.5,.75,.9]) 
-        elif via_admin == 'Parenteral':
-            df_estatistico = dataframe[dataframe['via_administracao'] == 'parenteral'].describe([.25,.5,.75,.9])
-        elif via_admin == 'Tópica':
-            df_estatistico = dataframe[dataframe['via_administracao'] == 'topical'].describe([.25,.5,.75,.9])
+    # if uploaded_file:
+    st.subheader('**Resumo Estatístico das Propriedades**')
+    via_admin = st.radio( 'Selecione uma via de administração:',['Todas','Oral', 'Parenteral', 'Tópica'], horizontal = True)
+    if via_admin == 'Todas':            
+        df_estatistico = dataframe.describe([.25,.5,.75,.9])
+    elif via_admin == 'Oral':
+        df_estatistico = dataframe[dataframe['via_administracao'] == 'oral'].describe([.25,.5,.75,.9]) 
+    elif via_admin == 'Parenteral':
+        df_estatistico = dataframe[dataframe['via_administracao'] == 'parenteral'].describe([.25,.5,.75,.9])
+    elif via_admin == 'Tópica':
+        df_estatistico = dataframe[dataframe['via_administracao'] == 'topical'].describe([.25,.5,.75,.9])
 
-                
-        df_estatistico = df_estatistico.rename(index={'count': 'contagem',
-                                                            'mean': 'média',
-                                                            'std': 'dp',
-                                                            })
-        st.write(df_estatistico)
+            
+    df_estatistico = df_estatistico.rename(index={'count': 'contagem',
+                                                        'mean': 'média',
+                                                        'std': 'dp',
+                                                        })
+    st.write(df_estatistico)
 
 with tab6:
-    if uploaded_file:
+    # if uploaded_file:
 
-        prop_quimica = st.selectbox('Selecione uma propriedade para comparação:',
-                                ('massa_molecular', 'log_p', 'atomos_pesados', 'alh', 'dlh', 'lig.rot.', 'num_ar', 'tpsa', 'qed'),
-                                index=None,
-                                placeholder='Selecione uma opção...'
-                                )       
-        sns.set_theme(style='white', context='poster', palette='twilight')
-        if prop_quimica:
-            st.markdown("<h4 style='text-align: center; color: black;'>Histogramas de Propriedades Físico-Químicas por Vintênio</h4>", unsafe_allow_html=True)
-            # Plotagem dos histogramas
-            fig, ax = plt.subplots(figsize=(20,10))
-            boxplot = sns.boxplot(x="periodo", y=prop_quimica, data=dataframe,
-                                  color='wheat',
-                                  medianprops={"color": "r", "linewidth": 2})
-            boxplot.set_xlabel('Período')
-            st.pyplot(fig)
+    prop_quimica = st.selectbox('Selecione uma propriedade para comparação:',
+                            ('massa_molecular', 'log_p', 'atomos_pesados', 'alh', 'dlh', 'lig.rot.', 'num_ar', 'tpsa', 'qed'),
+                            index=None,
+                            placeholder='Selecione uma opção...'
+                            )       
+    sns.set_theme(style='white', context='poster', palette='twilight')
+    if prop_quimica:
+        st.markdown("<h4 style='text-align: center; color: black;'>Histogramas de Propriedades Físico-Químicas por Vintênio</h4>", unsafe_allow_html=True)
+        # Plotagem dos histogramas
+        fig, ax = plt.subplots(figsize=(20,10))
+        boxplot = sns.boxplot(x="periodo", y=prop_quimica, data=dataframe,
+                                color='wheat',
+                                medianprops={"color": "r", "linewidth": 2})
+        boxplot.set_xlabel('Período')
+        st.pyplot(fig)
 
-            st.markdown("<h5 style='text-align: center; color: black;'>Análise Post-hoc de Propriedades Físico-Químicas com Teste de Wilcoxon</h5>", unsafe_allow_html=True)
+        st.markdown("<h5 style='text-align: center; color: black;'>Análise Post-hoc de Propriedades Físico-Químicas com Teste de Wilcoxon</h5>", unsafe_allow_html=True)
 
-            #Plotagem Heatmap
-            fig2, ax = plt.subplots()
-            # ajuste fontes dos eixos X e Y
-            yticks, ylabels = plt.yticks()
-            xticks, xlabels = plt.xticks()
-            ax.set_xticklabels(xlabels, size=10)
-            ax.set_yticklabels(ylabels, size=10)
-            
-                                    
-            sns.set(rc={'figure.figsize': (4, 3)}, font_scale=1.0)
-            pc = sp.posthoc_mannwhitney(dataframe, val_col=prop_quimica, group_col="periodo", p_adjust='holm')
-            heatmap_args = {'linewidths': 0.25, 'linecolor': '0.5', 'clip_on': False, 'square': True,
-                            'cbar_ax_bbox': [0.80, 0.35, 0.04, 0.3]}
-            _ = sp.sign_plot(pc, **heatmap_args)
-            st.pyplot(fig2)
+        #Plotagem Heatmap
+        fig2, ax = plt.subplots()
+        # ajuste fontes dos eixos X e Y
+        yticks, ylabels = plt.yticks()
+        xticks, xlabels = plt.xticks()
+        ax.set_xticklabels(xlabels, size=10)
+        ax.set_yticklabels(ylabels, size=10)
+        
+                                
+        sns.set(rc={'figure.figsize': (4, 3)}, font_scale=1.0)
+        pc = sp.posthoc_mannwhitney(dataframe, val_col=prop_quimica, group_col="periodo", p_adjust='holm')
+        heatmap_args = {'linewidths': 0.25, 'linecolor': '0.5', 'clip_on': False, 'square': True,
+                        'cbar_ax_bbox': [0.80, 0.35, 0.04, 0.3]}
+        _ = sp.sign_plot(pc, **heatmap_args)
+        st.pyplot(fig2)
 
 with tab7:
     st.markdown('''
