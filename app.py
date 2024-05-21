@@ -112,7 +112,7 @@ st.set_page_config(page_title='Análise de Estruturas',
 
    
     
-tab1, tab2, tab3, tab4, tab5, tab6, tab7 = st.tabs(['Apresentação do Projeto','Importação dos Dados',"Gráficos de Dispersão", "Gráficos Radar","Análises Estatísticas", 'Séries Temporais', 'Glossário'])
+tab1, tab2, tab3, tab4, tab5, tab6, tab7 = st.tabs(['Apresentação do Projeto','Dados',"Gráficos de Dispersão", "Gráficos Radar","Análises Estatísticas", 'Séries Temporais', 'Glossário'])
 
 with tab1:
     st.markdown("<h4 style='text-align: center; color: black;'>Plataforma Interativa para Exploração do Espaço Químico em Química Medicinal</h4>", unsafe_allow_html=True)
@@ -127,7 +127,7 @@ Esta iniciativa representa um passo significativo na educação moderna em Quím
    
 
 with tab2:
-    uploaded_file = st.file_uploader("Escolha um arquivo do Excel") 
+    # uploaded_file = st.file_uploader("Escolha um arquivo do Excel") 
     # if uploaded_file:   
     #     dataframe = pd.read_excel(uploaded_file)
     #     # dataframe = pd.read_csv(uploaded_file)
